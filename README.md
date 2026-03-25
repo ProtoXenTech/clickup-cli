@@ -8,6 +8,7 @@ It is designed for everyday project work across any repo:
 - map each repo to its own default workspace, space, list, and assignee
 - start a task, post progress, and mark it done from terminal
 - generate branch names from ClickUp tasks
+- install git hooks so commits and pushes can comment back to the active ClickUp task
 - create task plans and sync descriptions, dates, and notes in bulk
 - keep a small local state file so repeated commands stay fast
 
@@ -25,7 +26,6 @@ The CLI currently exposes two command names after linking:
 ## Install globally from source
 
 ```bash
-cd tools/clickup-dev-cli
 npm link
 ```
 
@@ -83,6 +83,7 @@ Use `.clickup-cli.example.json` as a starting point if you want to create the fi
 ```bash
 clickup-cli start --task 86abc123
 clickup-cli branch-name --task 86abc123
+clickup-cli install-hooks
 clickup-cli sync --task 86abc123
 clickup-cli done --task 86abc123 --comment "Finished first implementation pass and verified typecheck."
 ```
@@ -91,8 +92,29 @@ What these do:
 
 - `start` moves the task to your configured start status, optionally assigns you, stores the active task locally, and suggests a branch name
 - `branch-name` generates a branch using your configured format
+- `install-hooks` installs `post-commit` and `post-push` hooks that post git updates back to ClickUp
 - `sync` posts a compact git-based progress note back to ClickUp
 - `done` moves the task to your done status and clears local active-task state
+
+## Git hook automation
+
+Inside a git repository, run:
+
+```bash
+clickup-cli install-hooks
+```
+
+This installs local git hooks for:
+
+- `post-commit`
+- `post-push`
+
+The hooks call `clickup-cli hook-event` and try to resolve the task by:
+
+1. the active task in `.clickup-cli/state.json`
+2. the branch name if it matches `cu-{taskId}-{slug}`
+
+This gives you lightweight automatic ClickUp updates without needing a background service.
 
 ## Planning workflow
 
@@ -152,4 +174,5 @@ clickup-cli comment --task 86abc123 --comment "Working on this now"
 - The CLI reads `.env.local` and `.env` from the current repo before falling back to shell env.
 - `start` stores the active task locally, so later commands such as `task`, `comment`, `sync`, and `done` can run without repeating `--task`.
 - `sync` is intentionally simple right now: it posts branch, last commit, and working-tree summary back to ClickUp.
+- `install-hooks` is repo-local and safe to rerun; it only writes standard git hook files in `.git/hooks`.
 - The package is structured to be moved into its own repository cleanly.
