@@ -9,6 +9,7 @@ It is designed for everyday project work across any repo:
 - start a task, post progress, and mark it done from terminal
 - generate branch names from ClickUp tasks
 - install git hooks so commits and pushes can comment back to the active ClickUp task
+- link the current GitHub pull request back to the ClickUp task
 - create task plans and sync descriptions, dates, and notes in bulk
 - keep a small local state file so repeated commands stay fast
 
@@ -85,6 +86,7 @@ clickup-cli start --task 86abc123
 clickup-cli branch-name --task 86abc123
 clickup-cli install-hooks
 clickup-cli sync --task 86abc123
+clickup-cli link-pr --task 86abc123
 clickup-cli done --task 86abc123 --comment "Finished first implementation pass and verified typecheck."
 ```
 
@@ -94,6 +96,7 @@ What these do:
 - `branch-name` generates a branch using your configured format
 - `install-hooks` installs `post-commit` and `post-push` hooks that post git updates back to ClickUp
 - `sync` posts a compact git-based progress note back to ClickUp
+- `link-pr` posts the current branch PR URL back to ClickUp using `gh`
 - `done` moves the task to your done status and clears local active-task state
 
 ## Git hook automation
@@ -115,6 +118,24 @@ The hooks call `clickup-cli hook-event` and try to resolve the task by:
 2. the branch name if it matches `cu-{taskId}-{slug}`
 
 This gives you lightweight automatic ClickUp updates without needing a background service.
+
+If a pull request already exists for the current branch, the `post-push` hook also adds the PR URL to ClickUp automatically.
+
+## Pull request linking
+
+To link the current branch PR manually:
+
+```bash
+clickup-cli link-pr --task 86abc123
+```
+
+You can also pass a PR URL explicitly:
+
+```bash
+clickup-cli link-pr --task 86abc123 --pr "https://github.com/org/repo/pull/123"
+```
+
+`sync` also accepts `--pr` and the git hook flow tries to detect the current branch PR automatically with `gh pr view`.
 
 ## Planning workflow
 
