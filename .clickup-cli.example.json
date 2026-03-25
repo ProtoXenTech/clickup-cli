@@ -1,0 +1,14 @@
+{
+  "provider": "clickup",
+  "projectName": "My Project",
+  "teamId": "your-workspace-id",
+  "spaceId": "your-space-id",
+  "folderId": "optional-folder-id",
+  "listId": "your-list-id",
+  "assigneeId": "your-clickup-user-id",
+  "defaults": {
+    "startStatus": "in progress",
+    "doneStatus": "complete",
+    "branchFormat": "cu-{taskId}-{slug}"
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "name": "clickup-cli",
+  "version": "0.1.0",
+  "description": "Reusable local ClickUp developer CLI for project planning and task sync",
+  "license": "MIT",
+  "bin": {
+    "clickup-cli": "./bin/clickup-dev.js",
+    "clickup-dev": "./bin/clickup-dev.js"
+  },
+  "files": [
+    "bin",
+    "lib",
+    "README.md",
+    "LICENSE",
+    ".clickup-cli.example.json"
+  ],
+  "keywords": [
+    "clickup",
+    "cli",
+    "developer-workflow",
+    "task-sync",
+    "project-planning"
+  ],
+  "engines": {
+    "node": ">=18"
+  }
+}
