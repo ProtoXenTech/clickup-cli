@@ -5,7 +5,7 @@
 It is designed for everyday project work across any repo:
 
 - store ClickUp credentials once at user level
-- map each repo to its own default workspace, space, list, and assignee
+- keep workspace and space defaults global while each repo can choose its own list and assignee
 - start a task, post progress, and mark it done from terminal
 - generate branch names from ClickUp tasks
 - install git hooks so commits and pushes can comment back to the active ClickUp task
@@ -38,16 +38,17 @@ clickup-cli help
 
 ## Global setup
 
-Run this once on your machine:
+Run this once on your machine to save reusable account-level defaults:
 
 ```bash
 clickup-cli setup \
   --token "YOUR_CLICKUP_TOKEN" \
   --team "90181927086" \
   --space "90187599281" \
-  --list "901816917111" \
   --assignee "2140582"
 ```
+
+Use `--list` here only if almost every repo shares the same list. In most cases, keep the list project-specific and set it during `init` or in `.clickup-cli.json`.
 
 This writes global defaults to:
 
@@ -69,7 +70,7 @@ You can also supply any of these through environment variables:
 Inside any repository:
 
 ```bash
-clickup-cli init --name "My Project"
+clickup-cli init --name "ProtoXen" --list "901816917111"
 ```
 
 This creates:
@@ -177,7 +178,7 @@ clickup-cli comment --task 86abc123 --comment "Working on this now"
 ```json
 {
   "provider": "clickup",
-  "projectName": "My Project",
+  "projectName": "ProtoXen",
   "teamId": "90181927086",
   "spaceId": "90187599281",
   "listId": "901816917111",
@@ -193,6 +194,7 @@ clickup-cli comment --task 86abc123 --comment "Working on this now"
 ## Notes
 
 - The CLI reads `.env.local` and `.env` from the current repo before falling back to shell env.
+- A practical default split is: store token, team, space, and your assignee globally; keep `listId` repo-specific.
 - `start` stores the active task locally, so later commands such as `task`, `comment`, `sync`, and `done` can run without repeating `--task`.
 - `sync` is intentionally simple right now: it posts branch, last commit, and working-tree summary back to ClickUp.
 - `install-hooks` is repo-local and safe to rerun; it only writes standard git hook files in `.git/hooks`.

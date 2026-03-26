@@ -1,6 +1,6 @@
 {
   "provider": "clickup",
-  "projectName": "My Project",
+  "projectName": "ProtoXen",
   "teamId": "your-workspace-id",
   "spaceId": "your-space-id",
   "folderId": "optional-folder-id",
