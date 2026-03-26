@@ -6,6 +6,7 @@ It is designed for everyday project work across any repo:
 
 - store ClickUp credentials once at user level
 - keep workspace and space defaults global while each repo can choose its own list and assignee
+- follow one lightweight workflow for planning, doing, reviewing, and finishing work
 - start a task, post progress, and mark it done from terminal
 - generate branch names from ClickUp tasks
 - install git hooks so commits and pushes can comment back to the active ClickUp task
@@ -80,25 +81,59 @@ This creates:
 
 Use `.clickup-cli.example.json` as a starting point if you want to create the file manually.
 
+## Global workflow defaults
+
+The CLI now supports one simple developer workflow across projects:
+
+- one ClickUp list per project
+- top-level tasks are milestones
+- nested subtasks can go as deep as needed
+- keep descriptions short
+- always keep due date, priority, and a few relevant tags
+- use comments only for key progress, review notes, blockers, and commit references
+
+Check the active workflow defaults with:
+
+```bash
+clickup-cli workflow
+```
+
+Recommended global setup:
+
+```bash
+clickup-cli setup \
+  --team "90181927086" \
+  --space "90187599281" \
+  --assignee "2140582" \
+  --review-status "in review" \
+  --milestone-tag "milestone" \
+  --launch-tag "launch" \
+  --ongoing-tag "ongoing"
+```
+
 ## Typical workflow
 
 ```bash
+clickup-cli plan --file roadmap.json
 clickup-cli start --task 86abc123
+clickup-cli update --task 86abc123 --summary "Finished API wiring" --commit "abc1234"
+clickup-cli review --task 86abc123 --tests "npm test" --pr "https://github.com/org/repo/pull/123"
 clickup-cli branch-name --task 86abc123
 clickup-cli install-hooks
 clickup-cli sync --task 86abc123
-clickup-cli link-pr --task 86abc123
-clickup-cli done --task 86abc123 --comment "Finished first implementation pass and verified typecheck."
+clickup-cli done --task 86abc123 --summary "Feature shipped" --commit "def5678"
 ```
 
 What these do:
 
+- `plan` creates milestones and nested tasks from one simple roadmap file
 - `start` moves the task to your configured start status, optionally assigns you, stores the active task locally, and suggests a branch name
+- `update` posts a short key progress note and can attach commit references, tests, next steps, or status changes
+- `review` moves work to your review status and saves a compact PR and test note
 - `branch-name` generates a branch using your configured format
 - `install-hooks` installs `post-commit` and `post-push` hooks that post git updates back to ClickUp
 - `sync` posts a compact git-based progress note back to ClickUp
-- `link-pr` posts the current branch PR URL back to ClickUp using `gh`
-- `done` moves the task to your done status and clears local active-task state
+- `done` moves the task to your done status, saves an optional short completion note, and clears local active-task state
 
 ## Git hook automation
 
@@ -140,11 +175,21 @@ clickup-cli link-pr --task 86abc123 --pr "https://github.com/org/repo/pull/123"
 
 ## Planning workflow
 
-Create a parent task and subtasks from a plan file:
+Create milestones and nested tasks from a roadmap file:
 
 ```bash
-clickup-cli create-plan --file plan.json
+clickup-cli plan --file roadmap.json
 ```
+
+Use `.clickup-roadmap.example.json` as the starting point.
+
+Roadmap rules:
+
+- one project list per repository
+- milestones are top-level tasks
+- child work lives in `tasks`
+- use `mode: "launch"` for initial delivery or `mode: "ongoing"` for regular updates
+- keep each description short and practical
 
 Sync descriptions, dates, and notes onto existing tasks:
 
@@ -171,6 +216,9 @@ clickup-cli task --task 86abc123
 clickup-cli create-task --name "Task title"
 clickup-cli update-task --task 86abc123 --status "in progress"
 clickup-cli comment --task 86abc123 --comment "Working on this now"
+clickup-cli update --task 86abc123 --summary "Integrated API" --commit "abc1234"
+clickup-cli review --task 86abc123 --tests "npm run test"
+clickup-cli touch --task 86abc123 --status "blocked" --comment "Waiting on design review"
 ```
 
 ## Example project config
@@ -187,14 +235,45 @@ clickup-cli comment --task 86abc123 --comment "Working on this now"
     "startStatus": "in progress",
     "doneStatus": "complete",
     "branchFormat": "cu-{taskId}-{slug}"
+  },
+  "workflow": {
+    "statuses": {
+      "start": "in progress",
+      "review": "in review",
+      "done": "complete",
+      "blocked": "blocked"
+    },
+    "tags": {
+      "milestone": "milestone",
+      "launch": "launch",
+      "ongoing": "ongoing"
+    }
   }
 }
+```
+
+## Agent guidance
+
+If your project uses an `AGENTS.md`, add a short note that the repo follows the global `clickup-cli` workflow and prefers these commands:
+
+```md
+## ClickUp workflow
+
+Use the globally installed `clickup-cli`.
+
+- Project work lives in one ClickUp list per repo
+- Milestones are top-level tasks
+- Nested implementation tasks live under milestones
+- Use `clickup-cli plan --file roadmap.json` for new project roadmaps
+- Use `clickup-cli start`, `clickup-cli update`, `clickup-cli review`, and `clickup-cli done` for daily execution
+- Keep comments short and only store key progress, blockers, PR links, and relevant commit hashes
 ```
 
 ## Notes
 
 - The CLI reads `.env.local` and `.env` from the current repo before falling back to shell env.
 - A practical default split is: store token, team, space, and your assignee globally; keep `listId` repo-specific.
+- The simplest long-term pattern is: global auth and workflow, local project list.
 - `start` stores the active task locally, so later commands such as `task`, `comment`, `sync`, and `done` can run without repeating `--task`.
 - `sync` is intentionally simple right now: it posts branch, last commit, and working-tree summary back to ClickUp.
 - `install-hooks` is repo-local and safe to rerun; it only writes standard git hook files in `.git/hooks`.

@@ -1,0 +1,54 @@
+{
+  "project": "ProtoXen",
+  "mode": "launch",
+  "milestones": [
+    {
+      "name": "Foundation",
+      "description": "Project setup and shared architecture.",
+      "dueDate": "2026-04-05",
+      "priority": "high",
+      "tags": ["backend", "frontend"],
+      "tasks": [
+        {
+          "name": "Scaffold app",
+          "description": "Set up repo, tooling, and base app shell.",
+          "dueDate": "2026-04-02",
+          "priority": "high",
+          "tags": ["setup"]
+        },
+        {
+          "name": "Auth flow",
+          "description": "Implement login and session handling.",
+          "dueDate": "2026-04-04",
+          "priority": "high",
+          "tags": ["feature"],
+          "tasks": [
+            {
+              "name": "UI states",
+              "description": "Handle loading, error, and success states.",
+              "dueDate": "2026-04-03",
+              "priority": "normal",
+              "tags": ["frontend"]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Launch",
+      "description": "Final delivery and release readiness.",
+      "dueDate": "2026-04-15",
+      "priority": "high",
+      "tags": ["release"],
+      "tasks": [
+        {
+          "name": "QA pass",
+          "description": "Verify key user flows before release.",
+          "dueDate": "2026-04-12",
+          "priority": "normal",
+          "tags": ["qa"]
+        }
+      ]
+    }
+  ]
+}

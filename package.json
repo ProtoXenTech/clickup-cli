@@ -11,8 +11,10 @@
     "bin",
     "lib",
     "README.md",
+    "AGENTS.md",
     "LICENSE",
-    ".clickup-cli.example.json"
+    ".clickup-cli.example.json",
+    ".clickup-roadmap.example.json"
   ],
   "keywords": [
     "clickup",

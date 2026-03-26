@@ -10,5 +10,18 @@
     "startStatus": "in progress",
     "doneStatus": "complete",
     "branchFormat": "cu-{taskId}-{slug}"
+  },
+  "workflow": {
+    "statuses": {
+      "start": "in progress",
+      "review": "in review",
+      "done": "complete",
+      "blocked": "blocked"
+    },
+    "tags": {
+      "milestone": "milestone",
+      "launch": "launch",
+      "ongoing": "ongoing"
+    }
   }
 }
