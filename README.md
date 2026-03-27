@@ -103,9 +103,9 @@ Recommended global setup:
 ```bash
 clickup-cli setup \
   --team "90181927086" \
-  --space "90187599281" \
+  --space "90187599789" \
   --assignee "2140582" \
-  --review-status "in review" \
+  --review-status "review" \
   --milestone-tag "milestone" \
   --launch-tag "launch" \
   --ongoing-tag "ongoing"
@@ -116,12 +116,12 @@ clickup-cli setup \
 ```bash
 clickup-cli plan --file roadmap.json
 clickup-cli start --task 86abc123
-clickup-cli update --task 86abc123 --summary "Finished API wiring" --commit "abc1234"
-clickup-cli review --task 86abc123 --tests "npm test" --pr "https://github.com/org/repo/pull/123"
+clickup-cli update --task 86abc123 --summary "Finished API wiring" --files "lib/api.js,lib/client.js" --tests "npm test" --next "open PR"
+clickup-cli review --task 86abc123 --files "lib/api.js" --tests "npm test" --pr "https://github.com/org/repo/pull/123"
 clickup-cli branch-name --task 86abc123
 clickup-cli install-hooks
 clickup-cli sync --task 86abc123
-clickup-cli done --task 86abc123 --summary "Feature shipped" --commit "def5678"
+clickup-cli done --task 86abc123 --summary "Feature shipped" --files "lib/api.js" --tests "npm test"
 ```
 
 What these do:
@@ -134,6 +134,39 @@ What these do:
 - `install-hooks` installs `post-commit` and `post-push` hooks that post git updates back to ClickUp
 - `sync` posts a compact git-based progress note back to ClickUp
 - `done` moves the task to your done status, saves an optional short completion note, and clears local active-task state
+
+## Minimal update pattern
+
+The lowest-cost metadata that still helps humans and AI agents is:
+
+- `--files` for the main files touched
+- `--tests` for what you verified
+- `--next` for the immediate next step
+
+Recommended commands:
+
+```bash
+clickup-cli update \
+  --task 86abc123 \
+  --summary "Implemented checkout validation" \
+  --files "templates/checkout.php,assets/js/checkout.js" \
+  --tests "manual checkout passed" \
+  --next "open PR"
+
+clickup-cli review \
+  --task 86abc123 \
+  --files "templates/checkout.php" \
+  --tests "npm test" \
+  --next "wait for review"
+
+clickup-cli done \
+  --task 86abc123 \
+  --summary "Checkout validation shipped" \
+  --files "templates/checkout.php" \
+  --tests "npm test"
+```
+
+This keeps task comments compact while still making handoff and resume much easier.
 
 ## Git hook automation
 
@@ -216,9 +249,9 @@ clickup-cli task --task 86abc123
 clickup-cli create-task --name "Task title"
 clickup-cli update-task --task 86abc123 --status "in progress"
 clickup-cli comment --task 86abc123 --comment "Working on this now"
-clickup-cli update --task 86abc123 --summary "Integrated API" --commit "abc1234"
-clickup-cli review --task 86abc123 --tests "npm run test"
-clickup-cli touch --task 86abc123 --status "blocked" --comment "Waiting on design review"
+clickup-cli update --task 86abc123 --summary "Integrated API" --files "lib/api.js" --tests "npm run test" --next "open PR"
+clickup-cli review --task 86abc123 --files "lib/api.js" --tests "npm run test"
+clickup-cli touch --task 86abc123 --status "blocked" --comment "Waiting on design review" --next "follow up tomorrow"
 ```
 
 ## Example project config
@@ -228,19 +261,19 @@ clickup-cli touch --task 86abc123 --status "blocked" --comment "Waiting on desig
   "provider": "clickup",
   "projectName": "ProtoXen",
   "teamId": "90181927086",
-  "spaceId": "90187599281",
+  "spaceId": "90187599789",
   "listId": "901816917111",
   "assigneeId": "2140582",
   "defaults": {
     "startStatus": "in progress",
-    "doneStatus": "complete",
+    "doneStatus": "done",
     "branchFormat": "cu-{taskId}-{slug}"
   },
   "workflow": {
     "statuses": {
       "start": "in progress",
-      "review": "in review",
-      "done": "complete",
+      "review": "review",
+      "done": "done",
       "blocked": "blocked"
     },
     "tags": {
